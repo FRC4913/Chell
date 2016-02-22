@@ -31,6 +31,8 @@ public class Arm {
 	private static final int START_PID_DOWN = 200;
 	private static final int START_PID_UP = 800;
 
+	private double motorMinSpeed = 0.1;
+
 	private Talon armMotor;
 	private Encoder enc;
 	private DigitalInput upSwitch, downSwitch;
@@ -66,6 +68,7 @@ public class Arm {
 		if (distance > ENC_LOWER_LIMIT/* && !upSwitch.get()*/) {
 			if (pidControl && distance < START_PID_DOWN) {
 				double speed = distance * k;
+                speed = speed > motorMinSpeed ? speed : motorMinSpeed;
 				armMotor.set(-speed);
 			} else
 				armMotor.set(-1);
@@ -93,6 +96,7 @@ public class Arm {
 		if (distance < ENC_UPPER_LIMIT /*&& !downSwitch.get()*/) {
 			if (pidControl && distance > START_PID_UP) {
 				double speed = (ENC_UPPER_LIMIT - distance) * k;
+                speed = speed > motorMinSpeed ? speed : motorMinSpeed;
 				armMotor.set(speed);
 			} else
 				armMotor.set(1);
