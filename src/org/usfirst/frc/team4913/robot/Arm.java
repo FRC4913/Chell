@@ -63,7 +63,7 @@ public class Arm {
 	 */
 	public void armUp(boolean pidControl) {
 		double distance = enc.getDistance();
-		if (distance > ENC_LOWER_LIMIT && !upSwitch.get()) {
+		if (distance > ENC_LOWER_LIMIT/* && !upSwitch.get()*/) {
 			if (pidControl && distance < START_PID_DOWN) {
 				double speed = distance * k;
 				armMotor.set(-speed);
@@ -90,7 +90,7 @@ public class Arm {
 	 */
 	public void armDown(boolean pidControl) {
 		double distance = enc.getDistance();
-		if (distance < ENC_UPPER_LIMIT && !downSwitch.get()) {
+		if (distance < ENC_UPPER_LIMIT /*&& !downSwitch.get()*/) {
 			if (pidControl && distance > START_PID_UP) {
 				double speed = (ENC_UPPER_LIMIT - distance) * k;
 				armMotor.set(speed);

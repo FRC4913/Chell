@@ -23,9 +23,9 @@ public class Robot extends IterativeRobot {
 	CANTalon frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor;
 	CameraServer server;
 
-	private static final int FRONT_LEFT = 4;
+	private static final int FRONT_LEFT = 1;
 	private static final int REAR_LEFT = 3;
-	private static final int FRONT_RIGHT = 1;
+	private static final int FRONT_RIGHT = 4;
 	private static final int REAR_RIGHT = 2;
 	private static final int CAMERA_QUALITY = 50; // can be set to 0 - 100
 
@@ -91,7 +91,7 @@ public class Robot extends IterativeRobot {
 		if (stick.getRawButton(1)){
 			arm.armUp(PID_ENABLED);
 		}
-		else if (stick.getRawButton(0)){
+		else if (stick.getRawButton(2)){
 			arm.armDown(PID_ENABLED);
 		}
 		else
