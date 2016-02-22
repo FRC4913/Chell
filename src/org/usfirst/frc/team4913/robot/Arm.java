@@ -28,8 +28,11 @@ public class Arm {
 
 	private static final int ENC_UPPER_LIMIT = 1000;
 	private static final int ENC_LOWER_LIMIT = 0;
-	private static final int START_PID_DOWN = 200;
-	private static final int START_PID_UP = 800;
+
+	// start applying PID 1/4th of the way
+	private static final int PID_THRESHOLD = (ENC_UPPER_LIMIT - ENC_LOWER_LIMIT) / 4;
+	private static final int START_PID_UP = ENC_UPPER_LIMIT - PID_THRESHOLD;
+    private static final int START_PID_DOWN = ENC_LOWER_LIMIT + PID_THRESHOLD;
 
 	private double motorMinSpeed = 0.1;
 
@@ -37,7 +40,7 @@ public class Arm {
 	private Encoder enc;
 	private DigitalInput upSwitch, downSwitch;
 
-	private double k = .005; // proportionality constant for PID
+	private double k = 1 / PID_THRESHOLD; // proportionality constant for PID
 
 	public Arm() {
 		armMotor = new Talon(ARM_CHANNEL);
@@ -47,6 +50,9 @@ public class Arm {
 		enc = new Encoder(ENC_SOURCE_1, ENC_SOURCE_2);
 		enc.setDistancePerPulse(DISTANCE_PER_PULSE);
 		enc.reset();
+        // try this if it makes more sense logically to have the encoder values
+        // go from higher to lower as the arm moves from up to down
+        // enc.setReverseDirection(true);
 	}
 
 	/**
