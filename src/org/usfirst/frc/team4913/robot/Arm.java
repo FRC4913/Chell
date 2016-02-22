@@ -26,17 +26,21 @@ public class Arm {
 	private static final int UP_SWITCH_SOURCE = 2;
 	private static final int DOWN_SWITCH_SOURCE = 3;
 
-	private double motorMinSpeed = 0.1;
 	private int encUpperLimit = 1000;
 	private int encLowerLimit = 0;
-	private int startPIDDown = 200;
-	private int startPIDUp = 800;
-	private double k = .005; // proportionality constant for PID
+
+	// start applying PID 1/4th of the way
+	private int pidThreshold = (encUpperLimit - encLowerLimit) / 4;
+	private int startPIDDown = encUpperLimit - pidThreshold;
+    private int startPIDUp = encLowerLimit + pidThreshold;
+
+	private double motorMinSpeed = 0.1;
 
 	private Talon armMotor;
 	private Encoder enc;
 	private DigitalInput upSwitch, downSwitch;
 
+	private double k = 1 / pidThreshold; // proportionality constant for PID
 
 	public Arm() {
 		armMotor = new Talon(ARM_CHANNEL);
@@ -46,6 +50,9 @@ public class Arm {
 		enc = new Encoder(ENC_SOURCE_1, ENC_SOURCE_2);
 		enc.setDistancePerPulse(DISTANCE_PER_PULSE);
 		enc.reset();
+        // try this if it makes more sense logically to have the encoder values
+        // go from higher to lower as the arm moves from up to down
+        // enc.setReverseDirection(true);
 	}
 
 	/**
@@ -64,7 +71,7 @@ public class Arm {
 	 */
 	public void armUp(boolean pidControl) {
 		double distance = enc.getDistance();
-		if (distance > encLowerLimit && !upSwitch.get()) {
+		if (distance > encLowerLimit/* && !upSwitch.get()*/) {
 			if (pidControl && distance < startPIDDown) {
 				double speed = distance * k;
 				speed = speed > motorMinSpeed ? speed : motorMinSpeed;
@@ -92,7 +99,7 @@ public class Arm {
 	 */
 	public void armDown(boolean pidControl) {
 		double distance = enc.getDistance();
-		if (distance < encUpperLimit && !downSwitch.get()) {
+		if (distance < encUpperLimit /*&& !downSwitch.get()*/) {
 			if (pidControl && distance > startPIDUp) {
 				double speed = (encUpperLimit - distance) * k;
 				speed = speed > motorMinSpeed ? speed : motorMinSpeed;
