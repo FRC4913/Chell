@@ -1,12 +1,11 @@
 package org.usfirst.frc.team4913.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
 /**
@@ -32,7 +31,6 @@ public class Robot extends IterativeRobot {
 
 	private static final boolean PID_ENABLED = true;
 	Arm arm;
-	Preferences prefs;
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -42,10 +40,6 @@ public class Robot extends IterativeRobot {
 		stick = new Joystick(0);
 
 		arm = new Arm();
-		prefs = Preferences.getInstance();
-		arm.setEncUpperLimit(prefs.getInt("Upper Limit", 1000));
-		arm.setK(prefs.getDouble("K Constant", 0.005));
-		arm.setMotorMinSpeed(prefs.getDouble("Motor Min Speed", 0.1));
 
 		frontLeftMotor = new CANTalon(FRONT_LEFT);
 		rearLeftMotor = new CANTalon(REAR_LEFT);
@@ -103,10 +97,10 @@ public class Robot extends IterativeRobot {
 			arm.armDown(PID_ENABLED);
 		}
 		else if (stick.getRawButton(5)) {
-			arm.motorUp(); //run without encoder shutoff
+			arm.armUp(); //run without encoder shutoff
 		}
 		else if (stick.getRawButton(4)) {
-			arm.motorDown(); //run without encoder shutoff
+			arm.armDown(); //run without encoder shutoff
 		}
 		else
 			arm.armStop();
