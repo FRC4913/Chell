@@ -35,6 +35,7 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
         teleopDrive = new TeleOpDrive();
+        autonomousDrive = new AutonomousDrive();
         oi = new OI();
 
         server = CameraServer.getInstance();
