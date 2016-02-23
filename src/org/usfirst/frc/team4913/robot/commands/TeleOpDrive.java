@@ -1,5 +1,6 @@
 package org.usfirst.frc.team4913.robot.commands;
 
+import org.usfirst.frc.team4913.robot.OI;
 import org.usfirst.frc.team4913.robot.Robot;
 
 import edu.wpi.first.wpilibj.command.Command;
@@ -7,11 +8,11 @@ import edu.wpi.first.wpilibj.command.Command;
 /**
  *
  */
-public class PulleyUp extends Command {
+public class TeleOpDrive extends Command {
 
-    public PulleyUp() {
+    public TeleOpDrive() {
         // Use requires() here to declare subsystem dependencies
-        requires(Robot.pulley);
+        requires(Robot.drivetrain);
     }
 
     // Called just before this Command runs the first time
@@ -20,7 +21,7 @@ public class PulleyUp extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-        Robot.pulley.moveUp(true);
+        Robot.drivetrain.arcadeDrive(OI.stick);
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -30,12 +31,10 @@ public class PulleyUp extends Command {
 
     // Called once after isFinished returns true
     protected void end() {
-        Robot.pulley.stop();
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
-        Robot.pulley.stop();
     }
 }

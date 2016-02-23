@@ -1,13 +1,13 @@
 package org.usfirst.frc.team4913.robot;
 
+import org.usfirst.frc.team4913.robot.commands.AutonomousDrive;
+import org.usfirst.frc.team4913.robot.commands.TeleOpDrive;
+import org.usfirst.frc.team4913.robot.subsystems.DriveSubsystem;
 import org.usfirst.frc.team4913.robot.subsystems.PulleySubsystem;
 
-import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
 /**
@@ -20,94 +20,63 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 public class Robot extends IterativeRobot {
 
     public static final PulleySubsystem pulley = new PulleySubsystem();
+    public static final DriveSubsystem drivetrain = new DriveSubsystem();
 
-    RobotDrive myRobot;
-	Joystick stick;
-	int autoLoopCounter;
-	CANTalon frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor;
-	CameraServer server;
+    private static final int CAMERA_QUALITY = 50; // can be set to 0 - 100
 
-	private static final int FRONT_LEFT = 1;
-	private static final int REAR_LEFT = 3;
-	private static final int FRONT_RIGHT = 4;
-	private static final int REAR_RIGHT = 2;
-	private static final int CAMERA_QUALITY = 50; // can be set to 0 - 100
+    private CameraServer server;
+    private TeleOpDrive teleopDrive;
+    private AutonomousDrive autonomousDrive;
+    private OI oi;
 
-	private static final boolean PID_ENABLED = true;
-	Arm arm;
-
-	/**
-	 * This function is run when the robot is first started up and should be
-	 * used for any initialization code.
-	 */
-	public void robotInit() {
-		stick = new Joystick(0);
-		arm = new Arm();
-		frontLeftMotor = new CANTalon(FRONT_LEFT);
-		rearLeftMotor = new CANTalon(REAR_LEFT);
-		frontRightMotor = new CANTalon(FRONT_RIGHT);
-		rearRightMotor = new CANTalon(REAR_RIGHT);
-
-		rearLeftMotor.changeControlMode(TalonControlMode.Follower);
-		rearRightMotor.changeControlMode(TalonControlMode.Follower);
-		rearLeftMotor.set(FRONT_LEFT);
-		rearRightMotor.set(FRONT_RIGHT);
+    /**
+     * This function is run when the robot is first started up and should be
+     * used for any initialization code.
+     */
+    public void robotInit() {
+        teleopDrive = new TeleOpDrive();
+        oi = new OI();
 
         server = CameraServer.getInstance();
         server.setQuality(CAMERA_QUALITY);
         server.startAutomaticCapture("cam0");
+    }
 
-		myRobot = new RobotDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
-	}
+    /**
+     * This function is run once each time the robot enters autonomous mode
+     */
+    public void autonomousInit() {
+        if (autonomousDrive != null)
+            autonomousDrive.start();
+    }
 
-	/**
-	 * This function is run once each time the robot enters autonomous mode
-	 */
-	public void autonomousInit() {
-		autoLoopCounter = 0;
-	}
+    /**
+     * This function is called periodically during autonomous
+     */
+    public void autonomousPeriodic() {
+        Scheduler.getInstance().run();
+    }
 
-	/**
-	 * This function is called periodically during autonomous
-	 */
-	public void autonomousPeriodic() {
-		if (autoLoopCounter < 100) // Check if we've completed 100 loops
-									// (approximately 2 seconds)
-		{
-			myRobot.drive(-0.5, 0.0); // drive forwards half speed
-			autoLoopCounter++;
-		} else {
-			myRobot.drive(0.0, 0.0); // stop robot
-		}
-	}
+    /**
+     * This function is called once each time the robot enters tele-operated
+     * mode
+     */
+    public void teleopInit() {
+    }
 
-	/**
-	 * This function is called once each time the robot enters tele-operated
-	 * mode
-	 */
-	public void teleopInit() {
-	}
+    /**
+     * This function is called periodically during operator control
+     */
+    public void teleopPeriodic() {
+        Scheduler.getInstance().run();
+        teleopDrive.start();
+    }
 
-	/**
-	 * This function is called periodically during operator control
-	 */
-	public void teleopPeriodic() {
-		if (stick.getRawButton(1)){
-			arm.armUp(PID_ENABLED);
-		}
-		else if (stick.getRawButton(0)){
-			arm.armDown(PID_ENABLED);
-		}
-		else
-			arm.armStop();
-		myRobot.arcadeDrive(stick);
-	}
-
-	/**
-	 * This function is called periodically during test mode
-	 */
-	public void testPeriodic() {
-		LiveWindow.run();
-	}
+    /**
+     * This function is called periodically during test mode
+     */
+    public void testPeriodic() {
+        LiveWindow.run();
+    }
 
 }
