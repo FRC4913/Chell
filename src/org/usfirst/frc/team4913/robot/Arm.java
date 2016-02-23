@@ -74,7 +74,7 @@ public class Arm {
 		if (distance > encLowerLimit/* && !upSwitch.get()*/) {
 			if (pidControl && distance < startPIDUp) {
 				double speed = distance * k;
-				speed = speed > motorMinSpeed ? speed : motorMinSpeed;
+				//speed = speed > motorMinSpeed ? speed : motorMinSpeed;
 				armMotor.set(speed);
 			} else
 				armMotor.set(1);
@@ -102,7 +102,7 @@ public class Arm {
 		if (distance < encUpperLimit /*&& !downSwitch.get()*/) {
 			if (pidControl && distance > startPIDDown) {
 				double speed = (encUpperLimit - distance) * k;
-				speed = speed > motorMinSpeed ? speed : motorMinSpeed;
+				//speed = speed > motorMinSpeed ? speed : motorMinSpeed;
 				armMotor.set(-speed);
 			} else
 				armMotor.set(-1);
