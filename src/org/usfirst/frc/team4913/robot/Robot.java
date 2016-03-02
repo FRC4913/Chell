@@ -102,6 +102,18 @@ public class Robot extends IterativeRobot {
 		else if (stick.getRawButton(2)){
 			arm.armDown(PID_ENABLED);
 		}
+		else if (stick.getRawButton(5)) {
+			arm.motorUp(); //run without encoder shutoff
+		}
+		else if (stick.getRawButton(4)) {
+			arm.motorDown(); //run without encoder shutoff
+		}
+		else if (stick.getRawButton(7)) {
+			arm.autoUp();
+		}
+		else if (stick.getRawButton(6)) {
+			arm.autoDown();
+		}
 		else
 			arm.armStop();
 		myRobot.arcadeDrive(stick);
