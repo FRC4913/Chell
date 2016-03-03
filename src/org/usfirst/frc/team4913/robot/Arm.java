@@ -125,17 +125,17 @@ public class Arm {
 	}
 	
 	public void autoUp() {
-		while (!retractedSwitch.get()) {
+		if (retractedSwitch.get()) {
 			armMotor.set(.5);
+			print();
 		}
-		armMotor.set(0);
 	}
 	
 	public void autoDown() {
-		while (!deployedSwitch.get()) {
+		if (deployedSwitch.get()) {
 			armMotor.set(-.5);
+			print();
 		}
-			armMotor.set(0);
 	}
 
 	/**
@@ -148,6 +148,8 @@ public class Arm {
 	private void print() {
 		SmartDashboard.putNumber("encoder: ", enc.getDistance());
 		SmartDashboard.putBoolean("direction: ", enc.getDirection());
+		SmartDashboard.putBoolean("retracted limit ", retractedSwitch.get());
+		SmartDashboard.putBoolean("deployed limit ", deployedSwitch.get());
 		SmartDashboard.putNumber("motor value: ", armMotor.get());
 
 	}

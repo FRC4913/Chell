@@ -25,9 +25,9 @@ public class Robot extends IterativeRobot {
 	CameraServer server;
 
 	private static final int FRONT_LEFT = 1;
-	private static final int REAR_LEFT = 3;
+	private static final int REAR_LEFT = 2;
 	private static final int FRONT_RIGHT = 4;
-	private static final int REAR_RIGHT = 2;
+	private static final int REAR_RIGHT = 3;
 	private static final int CAMERA_QUALITY = 50; // can be set to 0 - 100
 
 	private static final boolean PID_ENABLED = true;
@@ -48,7 +48,9 @@ public class Robot extends IterativeRobot {
 		arm.setMotorMinSpeed(prefs.getDouble("Motor Min Speed", 0.1));
 
 		frontLeftMotor = new CANTalon(FRONT_LEFT);
+		frontLeftMotor.setInverted(true);
 		rearLeftMotor = new CANTalon(REAR_LEFT);
+		frontRightMotor.setInverted(true);
 		frontRightMotor = new CANTalon(FRONT_RIGHT);
 		rearRightMotor = new CANTalon(REAR_RIGHT);
 
@@ -57,11 +59,12 @@ public class Robot extends IterativeRobot {
 		rearLeftMotor.set(FRONT_LEFT);
 		rearRightMotor.set(FRONT_RIGHT);
 
-        server = CameraServer.getInstance();
-        server.setQuality(CAMERA_QUALITY);
-        server.startAutomaticCapture("cam0");
+		server = CameraServer.getInstance();
+		server.setQuality(CAMERA_QUALITY);
+		server.startAutomaticCapture("cam0");
 
-		myRobot = new RobotDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
+		myRobot = new RobotDrive(frontLeftMotor, frontRightMotor);
+		//myRobot = new RobotDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
 	}
 
 	/**
@@ -96,25 +99,21 @@ public class Robot extends IterativeRobot {
 	 * This function is called periodically during operator control
 	 */
 	public void teleopPeriodic() {
-		if (stick.getRawButton(1)){
+		if (stick.getRawButton(3)) {
 			arm.armUp(PID_ENABLED);
-		}
-		else if (stick.getRawButton(2)){
+		} else if (stick.getRawButton(1)) {
+			arm.armStop();
+		} else if (stick.getRawButton(2)) {
 			arm.armDown(PID_ENABLED);
-		}
-		else if (stick.getRawButton(5)) {
-			arm.motorUp(); //run without encoder shutoff
-		}
-		else if (stick.getRawButton(4)) {
-			arm.motorDown(); //run without encoder shutoff
-		}
-		else if (stick.getRawButton(7)) {
+		} else if (stick.getRawButton(5)) {
+			arm.motorUp(); // run without encoder shutoff
+		} else if (stick.getRawButton(4)) {
+			arm.motorDown(); // run without encoder shutoff
+		} else if (stick.getRawButton(11)) {
 			arm.autoUp();
-		}
-		else if (stick.getRawButton(6)) {
+		} else if (stick.getRawButton(6)) {
 			arm.autoDown();
-		}
-		else
+		} else
 			arm.armStop();
 		myRobot.arcadeDrive(stick);
 	}
