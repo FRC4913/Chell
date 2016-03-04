@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
@@ -21,8 +22,11 @@ public class Robot extends IterativeRobot {
 	RobotDrive myRobot;
 	Joystick stick;
 	int autoLoopCounter;
+	int autoPlateCounter;
 	CANTalon frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor;
 	CameraServer server;
+
+	int autoMode;
 
 	private static final int FRONT_LEFT = 1;
 	private static final int REAR_LEFT = 2;
@@ -32,7 +36,8 @@ public class Robot extends IterativeRobot {
 
 	private static final boolean PID_ENABLED = true;
 	Arm arm;
-	Preferences prefs;
+	Preferences prefs = Preferences.getInstance();
+
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -40,17 +45,15 @@ public class Robot extends IterativeRobot {
 	 */
 	public void robotInit() {
 		stick = new Joystick(0);
-
+		
 		arm = new Arm();
-		prefs = Preferences.getInstance();
 		arm.setEncUpperLimit(prefs.getInt("Upper Limit", 1000));
 		arm.setK(prefs.getDouble("K Constant", 0.005));
 		arm.setMotorMinSpeed(prefs.getDouble("Motor Min Speed", 0.1));
 
+		autoMode = prefs.getInt("auto mode", 1);
 		frontLeftMotor = new CANTalon(FRONT_LEFT);
-		frontLeftMotor.setInverted(true);
 		rearLeftMotor = new CANTalon(REAR_LEFT);
-		frontRightMotor.setInverted(true);
 		frontRightMotor = new CANTalon(FRONT_RIGHT);
 		rearRightMotor = new CANTalon(REAR_RIGHT);
 
@@ -63,8 +66,8 @@ public class Robot extends IterativeRobot {
 		server.setQuality(CAMERA_QUALITY);
 		server.startAutomaticCapture("cam0");
 
-		myRobot = new RobotDrive(frontLeftMotor, frontRightMotor);
-		//myRobot = new RobotDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
+		// myRobot = new RobotDrive(frontLeftMotor, frontRightMotor);
+		myRobot = new RobotDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
 	}
 
 	/**
@@ -72,20 +75,55 @@ public class Robot extends IterativeRobot {
 	 */
 	public void autonomousInit() {
 		autoLoopCounter = 0;
+		autoPlateCounter = 0;
+	}
+
+	public void fastAuto() {
+		myRobot.drive(-1, 0);
+	}
+
+	public void deployAuto() {
+		arm.autoDown();
+		myRobot.drive(-.5, 0);
 	}
 
 	/**
 	 * This function is called periodically during autonomous
 	 */
 	public void autonomousPeriodic() {
-		if (autoLoopCounter < 100) // Check if we've completed 100 loops
-									// (approximately 2 seconds)
-		{
-			myRobot.drive(-0.5, 0.0); // drive forwards half speed
-			autoLoopCounter++;
-		} else {
-			myRobot.drive(0.0, 0.0); // stop robot
+		System.out.println("auto mode: " + autoMode);
+		if (autoMode == 0) { //low bar, portcullis
+			if (autoPlateCounter < 180) {
+				arm.motorDown();
+				autoPlateCounter++;
+			}
+			else if (autoLoopCounter < 160 && autoPlateCounter >= 180) 
+			{
+				myRobot.drive(-0.4, 0.0); // drive forwards half speed
+				autoLoopCounter++;
+			} else{
+				arm.armStop();
+				myRobot.drive(0.0, 0.0); // stop robot
+			}
+
+		} else if (autoMode == 1) { //rocky terrain and 
+			if (autoLoopCounter < 90) {
+				myRobot.drive(-.4, 0);
+				autoLoopCounter++;
+			}
+			else
+				myRobot.drive(0, 0);
+		} 
+		
+		else if (autoMode == 2) {//moat and high wall
+			if (autoLoopCounter < 95) {
+				myRobot.drive(-.7,  0);
+				autoLoopCounter++;
+			}
+			else
+				myRobot.drive(0, 0);
 		}
+		
 	}
 
 	/**
@@ -115,7 +153,8 @@ public class Robot extends IterativeRobot {
 			arm.autoDown();
 		} else
 			arm.armStop();
-		myRobot.arcadeDrive(stick);
+		// myRobot.arcadeDrive(stick);
+		myRobot.arcadeDrive(stick.getRawAxis(1), -stick.getRawAxis(0));
 	}
 
 	/**

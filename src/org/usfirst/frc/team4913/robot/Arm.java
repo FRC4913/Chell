@@ -126,14 +126,14 @@ public class Arm {
 	
 	public void autoUp() {
 		if (retractedSwitch.get()) {
-			armMotor.set(.5);
+			armMotor.set(.3);
 			print();
 		}
 	}
 	
 	public void autoDown() {
 		if (deployedSwitch.get()) {
-			armMotor.set(-.5);
+			armMotor.set(-.3);
 			print();
 		}
 	}
