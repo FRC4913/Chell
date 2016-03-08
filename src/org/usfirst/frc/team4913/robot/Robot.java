@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
@@ -97,7 +96,7 @@ public class Robot extends IterativeRobot {
 				arm.motorDown();
 				autoPlateCounter++;
 			}
-			else if (autoLoopCounter < 160 && autoPlateCounter >= 180) 
+			else if (autoLoopCounter < 180 && autoPlateCounter >= 180)
 			{
 				myRobot.drive(-0.4, 0.0); // drive forwards half speed
 				autoLoopCounter++;
@@ -107,7 +106,7 @@ public class Robot extends IterativeRobot {
 			}
 
 		} else if (autoMode == 1) { //rocky terrain and 
-			if (autoLoopCounter < 90) {
+			if (autoLoopCounter < 180) {
 				myRobot.drive(-.4, 0);
 				autoLoopCounter++;
 			}
@@ -115,15 +114,22 @@ public class Robot extends IterativeRobot {
 				myRobot.drive(0, 0);
 		} 
 		
-		else if (autoMode == 2) {//moat and high wall
-			if (autoLoopCounter < 95) {
-				myRobot.drive(-.7,  0);
+		else if (autoMode == 2) {//high wall
+			if (autoLoopCounter < 80) {
+				myRobot.drive(.95,  0);
 				autoLoopCounter++;
 			}
 			else
 				myRobot.drive(0, 0);
 		}
 		
+		else if (autoMode == 3) { //moat
+			if (autoLoopCounter < 100) {
+				myRobot.drive(-.95, 0);
+				autoLoopCounter++;
+			}
+			else myRobot.drive(0, 0);
+		}
 	}
 
 	/**
