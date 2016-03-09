@@ -23,11 +23,15 @@ public class Arm {
 	private static final int DISTANCE_PER_PULSE = 1;
 
 	// Limit Switches
-	private static final int UP_SWITCH_SOURCE = 2;
-	private static final int DOWN_SWITCH_SOURCE = 3;
+	private static final int RETRACTED_SWITCH_SOURCE = 2;// plate hits switch
+															// when plate is all
+															// the way up
+	private static final int DEPLOYED_SWITCH_SOURCE = 3;// plate hits switch
+														// when plate is all the
+														// way down
 
-	private static final int ENC_UPPER_LIMIT = 1000;
-	private static final int ENC_LOWER_LIMIT = 0;
+	private static int ENC_UPPER_LIMIT = 1000;
+	private static int ENC_LOWER_LIMIT = 0;
 
 	// start applying PID 1/4th of the way
 	private static final int PID_THRESHOLD = (ENC_UPPER_LIMIT - ENC_LOWER_LIMIT) / 4;
@@ -38,21 +42,21 @@ public class Arm {
 
 	private Talon armMotor;
 	private Encoder enc;
-	private DigitalInput upSwitch, downSwitch;
+	private DigitalInput retractedSwitch, deployedSwitch;
 
 	private double k = 1 / PID_THRESHOLD; // proportionality constant for PID
 
 	public Arm() {
 		armMotor = new Talon(ARM_CHANNEL);
-		upSwitch = new DigitalInput(UP_SWITCH_SOURCE);
-		downSwitch = new DigitalInput(DOWN_SWITCH_SOURCE);
+		retractedSwitch = new DigitalInput(RETRACTED_SWITCH_SOURCE);
+		deployedSwitch = new DigitalInput(DEPLOYED_SWITCH_SOURCE);
 
 		enc = new Encoder(ENC_SOURCE_1, ENC_SOURCE_2);
 		enc.setDistancePerPulse(DISTANCE_PER_PULSE);
 		enc.reset();
-        // try this if it makes more sense logically to have the encoder values
-        // go from higher to lower as the arm moves from up to down
-        // enc.setReverseDirection(true);
+		// try this if it makes more sense logically to have the encoder values
+		// go from higher to lower as the arm moves from up to down
+		// enc.setReverseDirection(true);
 	}
 
 	/**
@@ -112,14 +116,27 @@ public class Arm {
 		print();
 	}
 
-	public void armUp() {
-		armMotor.set(.5);
+	public void motorUp() {
+			armMotor.set(.5);
 	}
 
-	public void armDown() {
-		armMotor.set(-.5);
+	public void motorDown() {
+			armMotor.set(-.5);
 	}
-
+	
+	public void autoUp() {
+		if (retractedSwitch.get()) {
+			armMotor.set(.3);
+			print();
+		}
+	}
+	
+	public void autoDown() {
+		if (deployedSwitch.get()) {
+			armMotor.set(-.3);
+			print();
+		}
+	}
 
 	/**
 	 * Stop the arm movement by setting motor speed to 0.
@@ -131,6 +148,8 @@ public class Arm {
 	private void print() {
 		SmartDashboard.putNumber("encoder: ", enc.getDistance());
 		SmartDashboard.putBoolean("direction: ", enc.getDirection());
+		SmartDashboard.putBoolean("retracted limit ", retractedSwitch.get());
+		SmartDashboard.putBoolean("deployed limit ", deployedSwitch.get());
 		SmartDashboard.putNumber("motor value: ", armMotor.get());
 
 	}
