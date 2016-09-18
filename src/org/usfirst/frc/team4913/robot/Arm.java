@@ -6,6 +6,8 @@
 
 package org.usfirst.frc.team4913.robot;
 
+import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Talon;
@@ -21,6 +23,10 @@ public class Arm {
 	private static final int ENC_SOURCE_1 = 0;
 	private static final int ENC_SOURCE_2 = 1;
 	private static final int DISTANCE_PER_PULSE = 1;
+
+	private static final boolean invert = true;
+	// new code, assume the channel is 6.
+	private static final int ARM_CHANNELFOLLOWED = 6;
 
 	// Limit Switches
 	private static final int RETRACTED_SWITCH_SOURCE = 2;// plate hits switch
@@ -40,16 +46,27 @@ public class Arm {
 
 	private double motorMinSpeed = 0.1;
 
-	private Talon armMotor;
+	private CANTalon armMotor;
+	// new code
+	private CANTalon armMotorFollowed;
+
 	private Encoder enc;
 	private DigitalInput retractedSwitch, deployedSwitch;
 
 	private double k = 1 / pidThreshold; // proportionality constant for PID
 
 	public Arm() {
-		armMotor = new Talon(ARM_CHANNEL);
+		armMotor = new CANTalon(ARM_CHANNEL);
+
+		// new code
+		armMotorFollowed = new CANTalon(ARM_CHANNELFOLLOWED);
+
 		retractedSwitch = new DigitalInput(RETRACTED_SWITCH_SOURCE);
 		deployedSwitch = new DigitalInput(DEPLOYED_SWITCH_SOURCE);
+
+		armMotorFollowed.changeControlMode(TalonControlMode.Follower);
+		armMotorFollowed.set(ARM_CHANNEL);
+		armMotorFollowed.setInverted(invert);
 
 		enc = new Encoder(ENC_SOURCE_1, ENC_SOURCE_2);
 		enc.setDistancePerPulse(DISTANCE_PER_PULSE);
@@ -57,6 +74,7 @@ public class Arm {
 		// try this if it makes more sense logically to have the encoder values
 		// go from higher to lower as the arm moves from up to down
 		// enc.setReverseDirection(true);
+
 	}
 
 	/**
@@ -80,10 +98,13 @@ public class Arm {
 				double speed = distance * k;
 				speed = speed > motorMinSpeed ? speed : motorMinSpeed;
 				armMotor.set(speed);
-			} else
+			} else {
 				armMotor.set(1);
-		} else
+			}
+		} else {
 			armMotor.set(0);
+		}
+
 		print();
 	}
 
@@ -117,20 +138,21 @@ public class Arm {
 	}
 
 	public void motorUp() {
-			armMotor.set(.5);
+		armMotor.set(.5);
+
 	}
 
 	public void motorDown() {
-			armMotor.set(-.5);
+		armMotor.set(-.5);
 	}
-	
+
 	public void autoUp() {
 		if (retractedSwitch.get()) {
 			armMotor.set(.3);
 			print();
 		}
 	}
-	
+
 	public void autoDown() {
 		if (deployedSwitch.get()) {
 			armMotor.set(-.3);
@@ -143,6 +165,7 @@ public class Arm {
 	 */
 	public void armStop() {
 		armMotor.set(0);
+
 	}
 
 	private void print() {
