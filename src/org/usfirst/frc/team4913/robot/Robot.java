@@ -37,7 +37,6 @@ public class Robot extends IterativeRobot {
 	Arm arm;
 	Preferences prefs = Preferences.getInstance();
 
-
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -78,54 +77,45 @@ public class Robot extends IterativeRobot {
 		myRobot.drive(-1, 0);
 	}
 
-	public void deployAuto() {
-		arm.autoDown();
-		myRobot.drive(-.5, 0);
-	}
-
 	/**
 	 * This function is called periodically during autonomous
 	 */
 	public void autonomousPeriodic() {
 		System.out.println("auto mode: " + autoMode);
-		if (autoMode == 0) { //low bar, portcullis
+		if (autoMode == 0) { // low bar, portcullis
 			if (autoPlateCounter < 180) {
 				arm.motorDown();
 				autoPlateCounter++;
-			}
-			else if (autoLoopCounter < 180 && autoPlateCounter >= 180)
-			{
+			} else if (autoLoopCounter < 180 && autoPlateCounter >= 180) {
 				myRobot.drive(-0.4, 0.0); // drive forwards half speed
 				autoLoopCounter++;
-			} else{
+			} else {
 				arm.armStop();
 				myRobot.drive(0.0, 0.0); // stop robot
 			}
 
-		} else if (autoMode == 1) { //rocky terrain and 
+		} else if (autoMode == 1) { // rocky terrain and
 			if (autoLoopCounter < 180) {
 				myRobot.drive(-.4, 0);
 				autoLoopCounter++;
-			}
-			else
-				myRobot.drive(0, 0);
-		} 
-		
-		else if (autoMode == 2) {//high wall
-			if (autoLoopCounter < 80) {
-				myRobot.drive(.95,  0);
-				autoLoopCounter++;
-			}
-			else
+			} else
 				myRobot.drive(0, 0);
 		}
-		
-		else if (autoMode == 3) { //moat
+
+		else if (autoMode == 2) {// high wall
+			if (autoLoopCounter < 80) {
+				myRobot.drive(.95, 0);
+				autoLoopCounter++;
+			} else
+				myRobot.drive(0, 0);
+		}
+
+		else if (autoMode == 3) { // moat
 			if (autoLoopCounter < 100) {
 				myRobot.drive(-.95, 0);
 				autoLoopCounter++;
-			}
-			else myRobot.drive(0, 0);
+			} else
+				myRobot.drive(0, 0);
 		}
 	}
 
@@ -140,20 +130,12 @@ public class Robot extends IterativeRobot {
 	 * This function is called periodically during operator control
 	 */
 	public void teleopPeriodic() {
-		if (stick.getRawButton(3)) {
-			arm.armUp(PID_ENABLED);
-		} else if (stick.getRawButton(1)) {
+		if (stick.getRawButton(1)) {
 			arm.armStop();
-		} else if (stick.getRawButton(2)) {
-			arm.armDown(PID_ENABLED);
 		} else if (stick.getRawButton(5)) {
 			arm.motorUp(); // run without encoder shutoff
 		} else if (stick.getRawButton(4)) {
 			arm.motorDown(); // run without encoder shutoff
-		} else if (stick.getRawButton(11)) {
-			arm.autoUp();
-		} else if (stick.getRawButton(6)) {
-			arm.autoDown();
 		} else
 			arm.armStop();
 		// myRobot.arcadeDrive(stick);
