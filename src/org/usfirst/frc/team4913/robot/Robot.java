@@ -1,12 +1,12 @@
 package org.usfirst.frc.team4913.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
 /**
@@ -46,6 +46,9 @@ public class Robot extends IterativeRobot {
 		stick = new Joystick(0);
 
 		arm = new Arm();
+		arm.setEncUpperLimit(prefs.getInt("Upper Limit", 1000));
+		arm.setK(prefs.getDouble("K Constant", 0.005));
+		arm.setMotorMinSpeed(prefs.getDouble("Motor Min Speed", 0.1));
 
 		autoMode = prefs.getInt("auto mode", 1);
 		frontLeftMotor = new CANTalon(FRONT_LEFT);
@@ -53,10 +56,10 @@ public class Robot extends IterativeRobot {
 		frontRightMotor = new CANTalon(FRONT_RIGHT);
 		rearRightMotor = new CANTalon(REAR_RIGHT);
 
-		rearLeftMotor.changeControlMode(TalonControlMode.Follower);
+		/*rearLeftMotor.changeControlMode(TalonControlMode.Follower);
 		rearRightMotor.changeControlMode(TalonControlMode.Follower);
 		rearLeftMotor.set(FRONT_LEFT);
-		rearRightMotor.set(FRONT_RIGHT);
+		rearRightMotor.set(FRONT_RIGHT);*/
 
 		server = CameraServer.getInstance();
 		server.setQuality(CAMERA_QUALITY);
@@ -157,7 +160,7 @@ public class Robot extends IterativeRobot {
 		} else
 			arm.armStop();
 		// myRobot.arcadeDrive(stick);
-		myRobot.arcadeDrive(stick.getRawAxis(1), -stick.getRawAxis(0));
+		myRobot.arcadeDrive(stick.getRawAxis(1)/1.4, -stick.getRawAxis(0)/1.4);
 	}
 
 	/**
