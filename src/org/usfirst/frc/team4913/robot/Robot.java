@@ -56,10 +56,10 @@ public class Robot extends IterativeRobot {
 		frontRightMotor = new CANTalon(FRONT_RIGHT);
 		rearRightMotor = new CANTalon(REAR_RIGHT);
 
-		rearLeftMotor.changeControlMode(TalonControlMode.Follower);
+		/*rearLeftMotor.changeControlMode(TalonControlMode.Follower);
 		rearRightMotor.changeControlMode(TalonControlMode.Follower);
 		rearLeftMotor.set(FRONT_LEFT);
-		rearRightMotor.set(FRONT_RIGHT);
+		rearRightMotor.set(FRONT_RIGHT);*/
 
 		server = CameraServer.getInstance();
 		server.setQuality(CAMERA_QUALITY);
@@ -160,7 +160,7 @@ public class Robot extends IterativeRobot {
 		} else
 			arm.armStop();
 		// myRobot.arcadeDrive(stick);
-		myRobot.arcadeDrive(stick.getRawAxis(1), -stick.getRawAxis(0));
+		myRobot.arcadeDrive(stick.getRawAxis(1)/1.4, -stick.getRawAxis(0)/1.4);
 	}
 
 	/**
