@@ -36,13 +36,13 @@ public class Arm {
 														// when plate is all the
 														// way down
 
-	private static int ENC_UPPER_LIMIT = 1000;
-	private static int ENC_LOWER_LIMIT = 0;
+	private int encUpperLimit = 1000;
+	private int encLowerLimit = 0;
 
 	// start applying PID 1/4th of the way
-	private static final int PID_THRESHOLD = (ENC_UPPER_LIMIT - ENC_LOWER_LIMIT) / 4;
-	private static final int START_PID_DOWN = ENC_UPPER_LIMIT - PID_THRESHOLD;
-    private static final int START_PID_UP = ENC_LOWER_LIMIT + PID_THRESHOLD;
+	private int pidThreshold = (encUpperLimit - encLowerLimit) / 4;
+	private int startPIDDown = encUpperLimit - pidThreshold;
+	private int startPIDUp = encLowerLimit + pidThreshold;
 
 	private double motorMinSpeed = 0.1;
 
@@ -53,7 +53,7 @@ public class Arm {
 	private Encoder enc;
 	private DigitalInput retractedSwitch, deployedSwitch;
 
-	private double k = 1 / PID_THRESHOLD; // proportionality constant for PID
+	private double k = 1 / pidThreshold; // proportionality constant for PID
 
 	public Arm() {
 		armMotor = new CANTalon(ARM_CHANNEL);
@@ -82,7 +82,7 @@ public class Arm {
 	 *
 	 * The arm movement is controlled by a Victor motor controller and
 	 * restricted by the encoder and (optionally) the limit switch. The arm will
-	 * stop when the encoder distance is less than {@link #ENC_LOWER_LIMIT} or
+	 * stop when the encoder distance is less than {@link #encLowerLimit} or
 	 * when the up limit switch is set (if added), whichever comes first.
 	 *
 	 * If pidControl is set to true, the arm movement will also slow down
@@ -93,10 +93,10 @@ public class Arm {
 	 */
 	public void armUp(boolean pidControl) {
 		double distance = enc.getDistance();
-		if (distance > ENC_LOWER_LIMIT/* && !upSwitch.get()*/) {
-			if (pidControl && distance < START_PID_UP) {
+		if (distance > encLowerLimit/* && retractedSwitch.get() */) {
+			if (pidControl && distance < startPIDUp) {
 				double speed = distance * k;
-				//speed = speed > motorMinSpeed ? speed : motorMinSpeed;
+				speed = speed > motorMinSpeed ? speed : motorMinSpeed;
 				armMotor.set(speed);
 			} else {
 				armMotor.set(1);
@@ -113,7 +113,7 @@ public class Arm {
 	 *
 	 * The arm movement is controlled by a Victor motor controller and
 	 * restricted by the encoder and (optionally) the limit switch. The arm will
-	 * stop when the encoder distance is greater than {@link #ENC_UPPER_LIMIT}
+	 * stop when the encoder distance is greater than {@link #encUpperLimit}
 	 * or when the down limit switch is set (if added), whichever comes first.
 	 *
 	 * If pidControl is set to true, the arm movement will also slow down
@@ -124,10 +124,10 @@ public class Arm {
 	 */
 	public void armDown(boolean pidControl) {
 		double distance = enc.getDistance();
-		if (distance < ENC_UPPER_LIMIT /*&& !downSwitch.get()*/) {
-			if (pidControl && distance > START_PID_DOWN) {
-				double speed = (ENC_UPPER_LIMIT - distance) * k;
-				//speed = speed > motorMinSpeed ? speed : motorMinSpeed;
+		if (distance < encUpperLimit /* && deployedSwitch.get() */) {
+			if (pidControl && distance > startPIDDown) {
+				double speed = (encUpperLimit - distance) * k;
+				speed = speed > motorMinSpeed ? speed : motorMinSpeed;
 				armMotor.set(-speed);
 			} else
 				armMotor.set(-1);
@@ -177,4 +177,27 @@ public class Arm {
 
 	}
 
+	public int getEncUpperLimit() {
+		return encUpperLimit;
+	}
+
+	public void setEncUpperLimit(int encUpperLimit) {
+		this.encUpperLimit = encUpperLimit;
+	}
+
+	public double getK() {
+		return k;
+	}
+
+	public void setK(double k) {
+		this.k = k;
+	}
+
+	public double getMotorMinSpeed() {
+		return motorMinSpeed;
+	}
+
+	public void setMotorMinSpeed(double motorMinSpeed) {
+		this.motorMinSpeed = motorMinSpeed;
+	}
 }
