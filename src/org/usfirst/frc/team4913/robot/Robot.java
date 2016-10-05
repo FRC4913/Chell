@@ -26,6 +26,7 @@ public class Robot extends IterativeRobot {
 	CameraServer server;
 
 	int autoMode;
+	boolean autoModeEnabled;
 
 	private static final int FRONT_LEFT = 1;
 	private static final int REAR_LEFT = 2;
@@ -35,8 +36,7 @@ public class Robot extends IterativeRobot {
 
 	private static final boolean PID_ENABLED = true;
 	Arm arm;
-	Preferences prefs = Preferences.getInstance();
-
+	Preferences prefs;
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -44,13 +44,13 @@ public class Robot extends IterativeRobot {
 	 */
 	public void robotInit() {
 		stick = new Joystick(0);
+		prefs = Preferences.getInstance();
 
 		arm = new Arm();
 		arm.setEncUpperLimit(prefs.getInt("Upper Limit", 1000));
 		arm.setK(prefs.getDouble("K Constant", 0.005));
 		arm.setMotorMinSpeed(prefs.getDouble("Motor Min Speed", 0.1));
 
-		autoMode = prefs.getInt("auto mode", 1);
 		frontLeftMotor = new CANTalon(FRONT_LEFT);
 		rearLeftMotor = new CANTalon(REAR_LEFT);
 		frontRightMotor = new CANTalon(FRONT_RIGHT);
@@ -73,6 +73,8 @@ public class Robot extends IterativeRobot {
 	 * This function is run once each time the robot enters autonomous mode
 	 */
 	public void autonomousInit() {
+		autoMode = prefs.getInt("auto mode", 1);
+		autoModeEnabled = prefs.getBoolean("auto mode enabled", true);
 		autoLoopCounter = 0;
 		autoPlateCounter = 0;
 	}
@@ -90,45 +92,64 @@ public class Robot extends IterativeRobot {
 	 * This function is called periodically during autonomous
 	 */
 	public void autonomousPeriodic() {
-		System.out.println("auto mode: " + autoMode);
-		if (autoMode == 0) { //low bar, portcullis
-			if (autoPlateCounter < 180) {
-				arm.motorDown();
+		if (!autoModeEnabled){
+			return;
+		}
+
+		if (autoMode == 0) { // low bar, portcullis
+			if (autoPlateCounter < 40) {
+				arm.motorUp();
 				autoPlateCounter++;
-			}
-			else if (autoLoopCounter < 180 && autoPlateCounter >= 180)
-			{
+			} else if (autoLoopCounter < 140 && autoPlateCounter >= 40) {
+				arm.armStop();
 				myRobot.drive(-0.4, 0.0); // drive forwards half speed
 				autoLoopCounter++;
-			} else{
+			} else {
 				arm.armStop();
 				myRobot.drive(0.0, 0.0); // stop robot
 			}
 
-		} else if (autoMode == 1) { //rocky terrain and 
-			if (autoLoopCounter < 180) {
-				myRobot.drive(-.4, 0);
+		} else if (autoMode == 1)// rocky terrain
+		{
+			if (autoLoopCounter < 120 && autoLoopCounter >= 1) {
+				myRobot.drive(-0.5, 0.0);
+				autoLoopCounter++;
+			} else {
+				myRobot.drive(0, 0);
+				arm.armStop();
 				autoLoopCounter++;
 			}
-			else
-				myRobot.drive(0, 0);
-		} 
-		
-		else if (autoMode == 2) {//high wall
-			if (autoLoopCounter < 80) {
-				myRobot.drive(.95,  0);
+		} else if (autoMode == 2)// high wall
+		{
+			if (autoLoopCounter < 120) {
+				myRobot.drive(-0.95, 0);
 				autoLoopCounter++;
-			}
-			else
+			} else {
 				myRobot.drive(0, 0);
-		}
-		
-		else if (autoMode == 3) { //moat
+			}
+		} else if (autoMode == 3)// moat
+		{
 			if (autoLoopCounter < 100) {
-				myRobot.drive(-.95, 0);
+				myRobot.drive(0.95, 0);
 				autoLoopCounter++;
+			} else {
+				myRobot.drive(0, 0);
 			}
-			else myRobot.drive(0, 0);
+		}
+		else if (autoMode == 4){ // arm down, drive backward half speed
+			if (autoPlateCounter < 40) {
+				arm.motorUp();
+				autoPlateCounter++;
+			} else if (autoLoopCounter < 140 && autoPlateCounter >= 40) {
+				arm.armStop();
+				myRobot.drive(0.4, 0.0); // drive backwards half speed
+				autoLoopCounter++;
+			} else {
+				arm.armStop();
+				myRobot.drive(0.0, 0.0); // stop robot
+			}
+
+
 		}
 	}
 
@@ -160,7 +181,7 @@ public class Robot extends IterativeRobot {
 		} else
 			arm.armStop();
 		// myRobot.arcadeDrive(stick);
-		myRobot.arcadeDrive(stick.getRawAxis(1)/1.4, -stick.getRawAxis(0)/1.4);
+		myRobot.arcadeDrive(stick.getRawAxis(1)/1.2, -stick.getRawAxis(0)/1.2);
 	}
 
 	/**

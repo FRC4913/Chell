@@ -93,7 +93,7 @@ public class Arm {
 	 */
 	public void armUp(boolean pidControl) {
 		double distance = enc.getDistance();
-		if (distance > encLowerLimit/* && retractedSwitch.get() */) {
+		if (distance >= encLowerLimit/* && retractedSwitch.get() */) {
 			if (pidControl && distance < startPIDUp) {
 				double speed = distance * k;
 				speed = speed > motorMinSpeed ? speed : motorMinSpeed;
@@ -138,12 +138,14 @@ public class Arm {
 	}
 
 	public void motorUp() {
-		armMotor.set(.5);
+		armMotor.set(.3);
+		print();
 
 	}
 
 	public void motorDown() {
-		armMotor.set(-.5);
+		armMotor.set(-.3);
+		print();
 	}
 
 	public void autoUp() {
@@ -169,11 +171,14 @@ public class Arm {
 	}
 
 	private void print() {
+		
 		SmartDashboard.putNumber("encoder: ", enc.getDistance());
 		SmartDashboard.putBoolean("direction: ", enc.getDirection());
 		SmartDashboard.putBoolean("retracted limit ", retractedSwitch.get());
 		SmartDashboard.putBoolean("deployed limit ", deployedSwitch.get());
 		SmartDashboard.putNumber("motor value: ", armMotor.get());
+		SmartDashboard.putNumber("motor encoder position: ", armMotor.getEncPosition());
+		SmartDashboard.putNumber("motor encoder velocity: ", armMotor.getEncVelocity());
 
 	}
 
